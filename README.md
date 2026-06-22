@@ -36,7 +36,7 @@ SHA-256 checksums during image builds.
 Build a native image:
 
 ```bash
-docker build --target gcc-dev -t cpp-container:gcc-dev .
+docker build --target gcc-dev -t gcc-dev:local .
 ```
 
 Build multi-platform images:
@@ -45,7 +45,7 @@ Build multi-platform images:
 docker buildx build \
   --platform linux/amd64,linux/arm64 \
   --target gcc-dev \
-  -t cpp-container:gcc-dev .
+  -t gcc-dev:local .
 ```
 
 Build with Bake:
@@ -55,9 +55,11 @@ docker buildx bake gcc-dev-local
 ```
 
 The `*-local` Bake targets build one platform and load the image into the local
-Docker engine. They default to `linux/amd64`; set `LOCAL_PLATFORM=linux/arm64`
-on ARM hosts. The non-local Bake targets build the full `linux/amd64` and
-`linux/arm64` manifest set for pushing.
+Docker engine with names like `gcc-dev:local` and `clang-build:local`. They
+default to `linux/amd64`; set `LOCAL_PLATFORM=linux/arm64` on ARM hosts. The
+non-local Bake targets build the full `linux/amd64` and `linux/arm64` manifest
+set for pushing. Set `VERSION=<tag-or-sha>` when you want a non-local version
+tag, and `IMAGE_PREFIX=ghcr.io/<owner>/` when you want registry-qualified names.
 
 ## Development SSH Access
 
@@ -69,7 +71,7 @@ docker run -d \
   -p 2222:22 \
   -v "$PWD":/workspace \
   -v "$HOME/.ssh/authorized_keys":/home/dev/.ssh/authorized_keys:ro \
-  cpp-container:gcc-dev
+  gcc-dev:local
 ```
 
 Connect with:
@@ -85,14 +87,14 @@ Password login is disabled by default. Use SSH keys.
 Run the CMake + Conan 2 example:
 
 ```bash
-docker run --rm -v "$PWD":/workspace -w /workspace cpp-container:gcc-dev \
+docker run --rm -v "$PWD":/workspace -w /workspace gcc-dev:local \
   bash examples/gtest-cmake-conan/build-test.sh
 ```
 
 Run the Bazel example:
 
 ```bash
-docker run --rm -v "$PWD":/workspace -w /workspace cpp-container:gcc-dev \
+docker run --rm -v "$PWD":/workspace -w /workspace gcc-dev:local \
   bash examples/gtest-bazel/build-test.sh
 ```
 
@@ -112,7 +114,7 @@ from `proto/demo/v1/person.proto`, fill a `demo.v1.Person`, and print
 Example:
 
 ```bash
-docker run --rm -v "$PWD":/workspace -w /workspace cpp-container:clang-dev \
+docker run --rm -v "$PWD":/workspace -w /workspace clang-dev:local \
   bash -lc 'SANITIZER=thread bash examples/gtest-cmake-conan/build-test.sh'
 ```
 
@@ -120,7 +122,7 @@ For direct sanitizer runtime checks, run the standalone probe. It compiles a
 clean binary and a binary expected to trigger each sanitizer:
 
 ```bash
-docker run --rm -v "$PWD":/workspace -w /workspace cpp-container:clang-dev \
+docker run --rm -v "$PWD":/workspace -w /workspace clang-dev:local \
   bash examples/sanitizers/build-test.sh
 ```
 
@@ -132,19 +134,26 @@ minimal and do not include sanitizer or libc++ packages by default.
 GitHub Actions publishes all targets to:
 
 ```text
-ghcr.io/<owner>/<repo>:<target>-<short-sha>
-ghcr.io/<owner>/<repo>:<target>-<git-tag>
+ghcr.io/<owner>/<target>:<short-sha>
+ghcr.io/<owner>/<target>:<git-tag>
 ```
 
-The workflow lowercases `ghcr.io/<owner>/<repo>` before publishing so GHCR
-accepts repositories whose GitHub owner or repo name contains uppercase letters.
+The workflow lowercases `ghcr.io/<owner>` before publishing so GHCR accepts
+GitHub owners with uppercase letters. Target names become image names; versions
+are tags.
 
-For example:
+For a commit build with short SHA `a1b2c3d4e5f6`, the workflow publishes:
 
 ```text
-ghcr.io/example/cpp-container:gcc-dev-a1b2c3d4e5f6
-ghcr.io/example/cpp-container:gcc-dev-v1.0.0
+ghcr.io/example/gcc-build:a1b2c3d4e5f6
+ghcr.io/example/clang-build:a1b2c3d4e5f6
+ghcr.io/example/gcc-dev:a1b2c3d4e5f6
+ghcr.io/example/clang-dev:a1b2c3d4e5f6
+ghcr.io/example/gcc-runtime:a1b2c3d4e5f6
+ghcr.io/example/clang-runtime:a1b2c3d4e5f6
 ```
+
+For tag `v1.0.0`, the same image names receive tag `v1.0.0`.
 
 ## perf Notes
 

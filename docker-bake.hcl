@@ -1,5 +1,5 @@
-variable "IMAGE" {
-  default = "cpp-container"
+variable "IMAGE_PREFIX" {
+  default = ""
 }
 
 variable "VERSION" {
@@ -50,7 +50,7 @@ target "_local" {
 target "gcc-build" {
   inherits = ["_common"]
   target = "gcc-build"
-  tags = ["${IMAGE}:gcc-build-${VERSION}"]
+  tags = ["${IMAGE_PREFIX}gcc-build:${VERSION}"]
 }
 
 target "gcc-build-local" {
@@ -60,7 +60,7 @@ target "gcc-build-local" {
 target "clang-build" {
   inherits = ["_common"]
   target = "clang-build"
-  tags = ["${IMAGE}:clang-build-${VERSION}"]
+  tags = ["${IMAGE_PREFIX}clang-build:${VERSION}"]
 }
 
 target "clang-build-local" {
@@ -70,7 +70,7 @@ target "clang-build-local" {
 target "gcc-dev" {
   inherits = ["_common"]
   target = "gcc-dev"
-  tags = ["${IMAGE}:gcc-dev-${VERSION}"]
+  tags = ["${IMAGE_PREFIX}gcc-dev:${VERSION}"]
 }
 
 target "gcc-dev-local" {
@@ -80,7 +80,7 @@ target "gcc-dev-local" {
 target "clang-dev" {
   inherits = ["_common"]
   target = "clang-dev"
-  tags = ["${IMAGE}:clang-dev-${VERSION}"]
+  tags = ["${IMAGE_PREFIX}clang-dev:${VERSION}"]
 }
 
 target "clang-dev-local" {
@@ -90,7 +90,7 @@ target "clang-dev-local" {
 target "gcc-runtime" {
   inherits = ["_common"]
   target = "gcc-runtime"
-  tags = ["${IMAGE}:gcc-runtime-${VERSION}"]
+  tags = ["${IMAGE_PREFIX}gcc-runtime:${VERSION}"]
 }
 
 target "gcc-runtime-local" {
@@ -100,7 +100,7 @@ target "gcc-runtime-local" {
 target "clang-runtime" {
   inherits = ["_common"]
   target = "clang-runtime"
-  tags = ["${IMAGE}:clang-runtime-${VERSION}"]
+  tags = ["${IMAGE_PREFIX}clang-runtime:${VERSION}"]
 }
 
 target "clang-runtime-local" {

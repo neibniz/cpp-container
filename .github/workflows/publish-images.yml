@@ -46,7 +46,7 @@ jobs:
 
       - name: Image name
         id: image
-        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.target }}" >> "$GITHUB_OUTPUT"
 
       - name: Docker metadata
         id: meta
@@ -56,8 +56,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=ref,event=tag,prefix=${{ matrix.target }}-
-            type=sha,prefix=${{ matrix.target }}-,format=short,enable=${{ github.ref_type != 'tag' }}
+            type=ref,event=tag
+            type=sha,prefix=,format=short,enable=${{ github.ref_type != 'tag' }}
         env:
           DOCKER_METADATA_SHORT_SHA_LENGTH: 12
 
