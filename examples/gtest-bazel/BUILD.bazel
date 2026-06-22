@@ -1,0 +1,92 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+config_setting(
+    name = "sanitizer_address",
+    values = {"define": "sanitizer=address"},
+)
+
+config_setting(
+    name = "sanitizer_thread",
+    values = {"define": "sanitizer=thread"},
+)
+
+config_setting(
+    name = "sanitizer_undefined",
+    values = {"define": "sanitizer=undefined"},
+)
+
+config_setting(
+    name = "sanitizer_memory",
+    values = {"define": "sanitizer=memory"},
+)
+
+config_setting(
+    name = "sanitizer_address_undefined",
+    values = {"define": "sanitizer=address-undefined"},
+)
+
+SANITIZER_COPTS = select({
+    ":sanitizer_address": [
+        "-fsanitize=address",
+        "-fno-omit-frame-pointer",
+        "-DSAMPLE_SANITIZER_ENABLED=1",
+        "-DSAMPLE_SANITIZER_ADDRESS=1",
+    ],
+    ":sanitizer_thread": [
+        "-fsanitize=thread",
+        "-fno-omit-frame-pointer",
+        "-DSAMPLE_SANITIZER_ENABLED=1",
+        "-DSAMPLE_SANITIZER_THREAD=1",
+    ],
+    ":sanitizer_undefined": [
+        "-fsanitize=undefined",
+        "-fno-omit-frame-pointer",
+        "-DSAMPLE_SANITIZER_ENABLED=1",
+        "-DSAMPLE_SANITIZER_UNDEFINED=1",
+    ],
+    ":sanitizer_memory": [
+        "-fsanitize=memory",
+        "-fsanitize-memory-track-origins=2",
+        "-fno-omit-frame-pointer",
+        "-fno-optimize-sibling-calls",
+        "-DSAMPLE_SANITIZER_ENABLED=1",
+        "-DSAMPLE_SANITIZER_MEMORY=1",
+    ],
+    ":sanitizer_address_undefined": [
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-DSAMPLE_SANITIZER_ENABLED=1",
+        "-DSAMPLE_SANITIZER_ADDRESS_UNDEFINED=1",
+    ],
+    "//conditions:default": [],
+})
+
+SANITIZER_LINKOPTS = select({
+    ":sanitizer_address": ["-fsanitize=address"],
+    ":sanitizer_thread": ["-fsanitize=thread"],
+    ":sanitizer_undefined": [
+        "-fsanitize=undefined",
+        "-lubsan",
+    ],
+    ":sanitizer_memory": [
+        "-fsanitize=memory",
+        "-fsanitize-memory-track-origins=2",
+    ],
+    ":sanitizer_address_undefined": [
+        "-fsanitize=address,undefined",
+        "-lubsan",
+    ],
+    "//conditions:default": [],
+})
+
+cc_test(
+    name = "sample_test",
+    srcs = ["test/sample_test.cpp"],
+    copts = SANITIZER_COPTS,
+    linkopts = SANITIZER_LINKOPTS,
+    deps = [
+        "//proto/demo/v1:person_cc_proto",
+        "@googletest//:gtest_main",
+        "@protobuf//:protobuf",
+    ],
+)
