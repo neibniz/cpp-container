@@ -42,6 +42,14 @@ bazelisk_arch() {
   esac
 }
 
+buildifier_arch() {
+  case "$(deb_arch)" in
+    amd64) printf 'amd64\n' ;;
+    arm64) printf 'arm64\n' ;;
+    *) die "unsupported architecture for Buildifier: $(deb_arch)" ;;
+  esac
+}
+
 buf_arch() {
   case "$(deb_arch)" in
     amd64) printf 'x86_64\n' ;;

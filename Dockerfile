@@ -13,6 +13,7 @@ ARG CONAN_VERSION=2.29.1
 ARG BAZELISK_VERSION=1.29.0
 ARG BAZEL_VERSION=9.1.1
 ARG BUF_VERSION=1.71.0
+ARG BUILDIFIER_VERSION=8.5.1
 ARG PREFETCH_BAZEL=1
 ARG CMAKE_AMD64_SHA256=ca6f08ccbd5e6b0a9068d33317d0d1aff7278d08cccaed4529b8fbead7942a68
 ARG CMAKE_ARM64_SHA256=56a8014a8f28b8ff9cbe2c6fa8beebc028ac5b1987195d122b847fb486dc5282
@@ -22,6 +23,8 @@ ARG BAZELISK_AMD64_SHA256=5a408715e932c0250d28bd84555f12edbf70117de42f9181691c73
 ARG BAZELISK_ARM64_SHA256=e20e8b0f4f240091b7a55bf17b9398bd4f40ee70ae0208dff95dd4c445fb4010
 ARG BUF_AMD64_SHA256=d3de2838c68a5759ca276884254bc70df4e4ad185d6ed5f65f327b6ce6363eab
 ARG BUF_ARM64_SHA256=041c15f3a8c4bd6cf36285d7a9ef290cd3e2536ef3bfd3de64d1f70cc5144c6e
+ARG BUILDIFIER_AMD64_SHA256=887377fc64d23a850f4d18a077b5db05b19913f4b99b270d193f3c7334b5a9a7
+ARG BUILDIFIER_ARM64_SHA256=947bf6700d708026b2057b09bea09abbc3cafc15d9ecea35bb3885c4b09ccd04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     UV_PYTHON_INSTALL_DIR=/opt/uv/python \
@@ -82,13 +85,15 @@ ARG DEV_GID=1000
 ARG DEV_SUDO=1
 ENV DEV_TOOLCHAIN=gcc
 COPY docker/scripts/common.sh \
+     docker/scripts/install-buildifier.sh \
      docker/scripts/setup-dev-user.sh \
      docker/scripts/setup-sshd.sh \
      /tmp/cpp-container-scripts/
 COPY docker/entrypoint-dev.sh /usr/local/bin/entrypoint-dev
 COPY docker/profile/dev-aliases.sh /etc/profile.d/dev-aliases.sh
 COPY docker/profile/gcc-env.sh /etc/profile.d/toolchain-env.sh
-RUN bash /tmp/cpp-container-scripts/setup-dev-user.sh \
+RUN bash /tmp/cpp-container-scripts/install-buildifier.sh \
+ && bash /tmp/cpp-container-scripts/setup-dev-user.sh \
  && bash /tmp/cpp-container-scripts/setup-sshd.sh \
  && chmod 0755 /usr/local/bin/entrypoint-dev /etc/profile.d/dev-aliases.sh /etc/profile.d/toolchain-env.sh \
  && rm -rf /tmp/cpp-container-scripts
@@ -105,13 +110,15 @@ ARG DEV_SUDO=1
 ARG LLVM_MAJOR=19
 ENV DEV_TOOLCHAIN=clang
 COPY docker/scripts/common.sh \
+     docker/scripts/install-buildifier.sh \
      docker/scripts/setup-dev-user.sh \
      docker/scripts/setup-sshd.sh \
      /tmp/cpp-container-scripts/
 COPY docker/entrypoint-dev.sh /usr/local/bin/entrypoint-dev
 COPY docker/profile/dev-aliases.sh /etc/profile.d/dev-aliases.sh
 COPY docker/profile/clang-env.sh /etc/profile.d/toolchain-env.sh
-RUN bash /tmp/cpp-container-scripts/setup-dev-user.sh \
+RUN bash /tmp/cpp-container-scripts/install-buildifier.sh \
+ && bash /tmp/cpp-container-scripts/setup-dev-user.sh \
  && bash /tmp/cpp-container-scripts/setup-sshd.sh \
  && chmod 0755 /usr/local/bin/entrypoint-dev /etc/profile.d/dev-aliases.sh /etc/profile.d/toolchain-env.sh \
  && rm -rf /tmp/cpp-container-scripts

@@ -24,6 +24,19 @@ if ! command -v vim >/dev/null 2>&1 && [[ -x /usr/bin/vim.tiny ]]; then
   ln -sf /usr/bin/vim.tiny /usr/local/bin/vim
 fi
 
+if ! grep -q 'cpp-container profile.d loader' /etc/bash.bashrc; then
+  cat >> /etc/bash.bashrc <<'EOF'
+
+# cpp-container profile.d loader
+if [ -z "${CPP_CONTAINER_PROFILE_D_LOADED:-}" ] && [ -d /etc/profile.d ]; then
+  export CPP_CONTAINER_PROFILE_D_LOADED=1
+  for script in /etc/profile.d/*.sh; do
+    [ -r "$script" ] && . "$script"
+  done
+fi
+EOF
+fi
+
 if ! getent group "${DEV_GID}" >/dev/null; then
   groupadd --gid "${DEV_GID}" "${DEV_USER}"
 fi
@@ -40,7 +53,8 @@ chmod 0600 "/home/${DEV_USER}/.ssh/authorized_keys"
 chown -R "${DEV_USER}:${group_name}" "/home/${DEV_USER}" /workspace
 
 cat > "/home/${DEV_USER}/.bashrc" <<'EOF'
-if [ -d /etc/profile.d ]; then
+if [ -z "${CPP_CONTAINER_PROFILE_D_LOADED:-}" ] && [ -d /etc/profile.d ]; then
+  export CPP_CONTAINER_PROFILE_D_LOADED=1
   for script in /etc/profile.d/*.sh; do
     [ -r "$script" ] && . "$script"
   done

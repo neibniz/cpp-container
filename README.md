@@ -9,8 +9,8 @@ Clang. The images support `linux/amd64` and `linux/arm64`.
 | --- | --- |
 | `gcc-build` | GCC build image with Git, Make, CMake, Ninja, uv, Python, Conan 2, Bazel, buf, GCC/G++, GDB, and perf |
 | `clang-build` | Clang build image with Git, Make, CMake, Ninja, uv, Python, Conan 2, Bazel, buf, Clang, LLDB, and perf |
-| `gcc-dev` | GCC development image with SSH, aliases, sudo, GDB, and perf |
-| `clang-dev` | Clang development image with SSH, aliases, sudo, LLDB, and perf |
+| `gcc-dev` | GCC development image with SSH, aliases, sudo, Buildifier, GDB, and perf |
+| `clang-dev` | Clang development image with SSH, aliases, sudo, Buildifier, LLDB, and perf |
 | `gcc-runtime` | Minimal runtime image for GCC/libstdc++ binaries, including libatomic and OpenMP runtime libraries |
 | `clang-runtime` | Minimal runtime image for Clang binaries using libstdc++, including libatomic and OpenMP runtime libraries |
 
@@ -27,9 +27,10 @@ Clang. The images support `linux/amd64` and `linux/arm64`.
 | Conan | `2.29.1`, installed by uv |
 | Bazel | Bazelisk `1.29.0`, fallback Bazel `9.1.1` |
 | buf | `1.71.0` |
+| Buildifier | `8.5.1`, development images only |
 
-Downloaded CMake, uv, Bazelisk, and buf release assets are verified with pinned
-SHA-256 checksums during image builds.
+Downloaded CMake, uv, Bazelisk, buf, and Buildifier release assets are verified
+with pinned SHA-256 checksums during image builds.
 
 ## Build Locally
 
