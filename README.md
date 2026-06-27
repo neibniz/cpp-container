@@ -9,8 +9,8 @@ Clang. The images support `linux/amd64` and `linux/arm64`.
 | --- | --- |
 | `gcc-build` | GCC build image with Git, Make, CMake, Ninja, uv, Python, Conan 2, Bazel, buf, GCC/G++, GDB, and perf |
 | `clang-build` | Clang build image with Git, Make, CMake, Ninja, uv, Python, Conan 2, Bazel, buf, Clang, LLDB, and perf |
-| `gcc-dev` | GCC development image with SSH, aliases, sudo, Buildifier, GDB, and perf |
-| `clang-dev` | Clang development image with SSH, aliases, sudo, Buildifier, LLDB, and perf |
+| `gcc-dev` | GCC development image with SSH, aliases, sudo, Buildifier, clangd, GDB, and perf |
+| `clang-dev` | Clang development image with SSH, aliases, sudo, Buildifier, clangd, LLDB, and perf |
 | `gcc-runtime` | Minimal runtime image for GCC/libstdc++ binaries, including libatomic and OpenMP runtime libraries |
 | `clang-runtime` | Minimal runtime image for Clang binaries using libstdc++, including libatomic and OpenMP runtime libraries |
 
@@ -21,6 +21,7 @@ Clang. The images support `linux/amd64` and `linux/arm64`.
 | Base image | `debian:trixie-slim` |
 | GCC/G++ | Debian `gcc-14` / `g++-14` |
 | Clang/LLDB | Debian `clang-19` / `lldb-19` |
+| clangd | Debian `clangd-19`, development images only |
 | CMake | `4.3.4` |
 | uv | `0.11.23` |
 | Python | `3.14`, installed by uv |

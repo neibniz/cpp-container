@@ -83,8 +83,10 @@ ARG DEV_USER=dev
 ARG DEV_UID=1000
 ARG DEV_GID=1000
 ARG DEV_SUDO=1
+ARG LLVM_MAJOR=19
 ENV DEV_TOOLCHAIN=gcc
 COPY docker/scripts/common.sh \
+     docker/scripts/install-clangd.sh \
      docker/scripts/install-buildifier.sh \
      docker/scripts/setup-dev-user.sh \
      docker/scripts/setup-sshd.sh \
@@ -93,6 +95,7 @@ COPY docker/entrypoint-dev.sh /usr/local/bin/entrypoint-dev
 COPY docker/profile/dev-aliases.sh /etc/profile.d/dev-aliases.sh
 COPY docker/profile/gcc-env.sh /etc/profile.d/toolchain-env.sh
 RUN bash /tmp/cpp-container-scripts/install-buildifier.sh \
+ && bash /tmp/cpp-container-scripts/install-clangd.sh \
  && bash /tmp/cpp-container-scripts/setup-dev-user.sh \
  && bash /tmp/cpp-container-scripts/setup-sshd.sh \
  && chmod 0755 /usr/local/bin/entrypoint-dev /etc/profile.d/dev-aliases.sh /etc/profile.d/toolchain-env.sh \
@@ -110,6 +113,7 @@ ARG DEV_SUDO=1
 ARG LLVM_MAJOR=19
 ENV DEV_TOOLCHAIN=clang
 COPY docker/scripts/common.sh \
+     docker/scripts/install-clangd.sh \
      docker/scripts/install-buildifier.sh \
      docker/scripts/setup-dev-user.sh \
      docker/scripts/setup-sshd.sh \
@@ -118,6 +122,7 @@ COPY docker/entrypoint-dev.sh /usr/local/bin/entrypoint-dev
 COPY docker/profile/dev-aliases.sh /etc/profile.d/dev-aliases.sh
 COPY docker/profile/clang-env.sh /etc/profile.d/toolchain-env.sh
 RUN bash /tmp/cpp-container-scripts/install-buildifier.sh \
+ && bash /tmp/cpp-container-scripts/install-clangd.sh \
  && bash /tmp/cpp-container-scripts/setup-dev-user.sh \
  && bash /tmp/cpp-container-scripts/setup-sshd.sh \
  && chmod 0755 /usr/local/bin/entrypoint-dev /etc/profile.d/dev-aliases.sh /etc/profile.d/toolchain-env.sh \
