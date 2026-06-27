@@ -84,6 +84,33 @@ ssh -p 2222 dev@localhost
 
 Password login is disabled by default. Use SSH keys.
 
+## VS Code Dev Containers
+
+The development images set `SHELL=/bin/bash` and load `/etc/profile.d/*.sh`
+from `/etc/bash.bashrc`, `/root/.bashrc`, `/home/dev/.bashrc`, and
+`/etc/skel/.bashrc`. This covers normal bash terminals and VS Code's bash shell
+integration, including `bash --init-file ~/.bashrc`.
+
+If your `devcontainer.json` overrides the integrated terminal shell, keep it on
+bash for the image aliases:
+
+```json
+{
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 ## GTest Examples
 
 Run the CMake + Conan 2 example:

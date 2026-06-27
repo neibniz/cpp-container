@@ -9,6 +9,25 @@ source "${SCRIPT_DIR}/common.sh"
 : "${DEV_GID:=1000}"
 : "${DEV_SUDO:=1}"
 
+install_profile_d_loader() {
+  local file="$1"
+  mkdir -p "$(dirname "${file}")"
+  touch "${file}"
+
+  if ! grep -q 'cpp-container profile.d loader' "${file}"; then
+    cat >> "${file}" <<'EOF'
+
+# cpp-container profile.d loader
+if [ -z "${CPP_CONTAINER_PROFILE_D_LOADED:-}" ] && [ -d /etc/profile.d ]; then
+  CPP_CONTAINER_PROFILE_D_LOADED=1
+  for script in /etc/profile.d/*.sh; do
+    [ -r "$script" ] && . "$script"
+  done
+fi
+EOF
+  fi
+}
+
 packages=(
   bash-completion
   less
@@ -24,18 +43,9 @@ if ! command -v vim >/dev/null 2>&1 && [[ -x /usr/bin/vim.tiny ]]; then
   ln -sf /usr/bin/vim.tiny /usr/local/bin/vim
 fi
 
-if ! grep -q 'cpp-container profile.d loader' /etc/bash.bashrc; then
-  cat >> /etc/bash.bashrc <<'EOF'
-
-# cpp-container profile.d loader
-if [ -z "${CPP_CONTAINER_PROFILE_D_LOADED:-}" ] && [ -d /etc/profile.d ]; then
-  export CPP_CONTAINER_PROFILE_D_LOADED=1
-  for script in /etc/profile.d/*.sh; do
-    [ -r "$script" ] && . "$script"
-  done
-fi
-EOF
-fi
+install_profile_d_loader /etc/bash.bashrc
+install_profile_d_loader /root/.bashrc
+install_profile_d_loader /etc/skel/.bashrc
 
 if ! getent group "${DEV_GID}" >/dev/null; then
   groupadd --gid "${DEV_GID}" "${DEV_USER}"
@@ -53,13 +63,9 @@ chmod 0600 "/home/${DEV_USER}/.ssh/authorized_keys"
 chown -R "${DEV_USER}:${group_name}" "/home/${DEV_USER}" /workspace
 
 cat > "/home/${DEV_USER}/.bashrc" <<'EOF'
-if [ -z "${CPP_CONTAINER_PROFILE_D_LOADED:-}" ] && [ -d /etc/profile.d ]; then
-  export CPP_CONTAINER_PROFILE_D_LOADED=1
-  for script in /etc/profile.d/*.sh; do
-    [ -r "$script" ] && . "$script"
-  done
-fi
+# cpp-container user bash startup
 EOF
+install_profile_d_loader "/home/${DEV_USER}/.bashrc"
 
 cat > "/home/${DEV_USER}/.bash_profile" <<'EOF'
 if [ -r ~/.bashrc ]; then

@@ -84,7 +84,8 @@ ARG DEV_UID=1000
 ARG DEV_GID=1000
 ARG DEV_SUDO=1
 ARG LLVM_MAJOR=19
-ENV DEV_TOOLCHAIN=gcc
+ENV DEV_TOOLCHAIN=gcc \
+    SHELL=/bin/bash
 COPY docker/scripts/common.sh \
      docker/scripts/install-clangd.sh \
      docker/scripts/install-buildifier.sh \
@@ -111,7 +112,8 @@ ARG DEV_UID=1000
 ARG DEV_GID=1000
 ARG DEV_SUDO=1
 ARG LLVM_MAJOR=19
-ENV DEV_TOOLCHAIN=clang
+ENV DEV_TOOLCHAIN=clang \
+    SHELL=/bin/bash
 COPY docker/scripts/common.sh \
      docker/scripts/install-clangd.sh \
      docker/scripts/install-buildifier.sh \
