@@ -8,10 +8,14 @@ apt_install \
   ca-certificates \
   curl \
   file \
+  gawk \
   git \
+  iproute2 \
   make \
+  net-tools \
   ninja-build \
   pkg-config \
+  procps \
   tar \
   unzip \
   xz-utils \

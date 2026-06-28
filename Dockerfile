@@ -10,6 +10,7 @@ ARG CMAKE_VERSION=4.3.4
 ARG UV_VERSION=0.11.23
 ARG PYTHON_VERSION=3.14
 ARG CONAN_VERSION=2.29.1
+ARG VCPKG_REF=2026.06.24
 ARG BAZELISK_VERSION=1.29.0
 ARG BAZEL_VERSION=9.1.1
 ARG BUF_VERSION=1.71.0
@@ -32,15 +33,19 @@ ENV DEBIAN_FRONTEND=noninteractive \
     UV_PYTHON_INSTALL_DIR=/opt/uv/python \
     UV_TOOL_DIR=/opt/uv/tools \
     UV_TOOL_BIN_DIR=/usr/local/bin \
+    VCPKG_ROOT=/opt/vcpkg \
+    VCPKG_DOWNLOADS=/opt/vcpkg-downloads \
+    VCPKG_DISABLE_METRICS=1 \
     BAZELISK_HOME=/opt/bazelisk \
     USE_BAZEL_FALLBACK_VERSION=${BAZEL_VERSION} \
-    PATH=/opt/cmake/bin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    PATH=/opt/cmake/bin:/opt/vcpkg:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 COPY docker/scripts/common.sh \
      docker/scripts/install-base-packages.sh \
      docker/scripts/install-cmake.sh \
      docker/scripts/install-uv.sh \
      docker/scripts/install-python-conan.sh \
+     docker/scripts/install-vcpkg.sh \
      docker/scripts/install-bazelisk.sh \
      docker/scripts/install-buf.sh \
      /tmp/cpp-container-scripts/
@@ -48,6 +53,7 @@ RUN bash /tmp/cpp-container-scripts/install-base-packages.sh \
  && bash /tmp/cpp-container-scripts/install-cmake.sh \
  && bash /tmp/cpp-container-scripts/install-uv.sh \
  && bash /tmp/cpp-container-scripts/install-python-conan.sh \
+ && bash /tmp/cpp-container-scripts/install-vcpkg.sh \
  && bash /tmp/cpp-container-scripts/install-bazelisk.sh \
  && bash /tmp/cpp-container-scripts/install-buf.sh \
  && rm -rf /tmp/cpp-container-scripts

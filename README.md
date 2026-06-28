@@ -7,10 +7,10 @@ Clang. The images support `linux/amd64` and `linux/arm64`.
 
 | Target | Purpose |
 | --- | --- |
-| `gcc-build` | GCC build image with Git, Make, CMake, Ninja, uv, Python, Conan 2, Bazel, buf, GCC/G++, GDB, and perf |
-| `clang-build` | Clang build image with Git, Make, CMake, Ninja, uv, Python, Conan 2, Bazel, buf, Clang, LLDB, and perf |
-| `gcc-dev` | GCC development image with SSH, aliases, sudo, Buildifier, clangd, GDB, and perf |
-| `clang-dev` | Clang development image with SSH, aliases, sudo, Buildifier, clangd, LLDB, and perf |
+| `gcc-build` | GCC build image with Git, Make, CMake, Ninja, uv, Python, Conan 2, vcpkg, Bazel, buf, GCC/G++, GDB, perf, and common CLI diagnostics |
+| `clang-build` | Clang build image with Git, Make, CMake, Ninja, uv, Python, Conan 2, vcpkg, Bazel, buf, Clang, LLDB, perf, and common CLI diagnostics |
+| `gcc-dev` | `gcc-build` plus SSH, aliases, sudo, Buildifier, and clangd for development use |
+| `clang-dev` | `clang-build` plus SSH, aliases, sudo, Buildifier, and clangd for development use |
 | `gcc-runtime` | Minimal runtime image for GCC/libstdc++ binaries, including libatomic and OpenMP runtime libraries |
 | `clang-runtime` | Minimal runtime image for Clang binaries using libstdc++, including libatomic and OpenMP runtime libraries |
 | `bazel-build` | Minimal Bazel runner image for hermetic toolchain validation; includes Bazelisk, buf, and Buildifier, but no GCC or Clang compiler |
@@ -28,12 +28,14 @@ Clang. The images support `linux/amd64` and `linux/arm64`.
 | uv | `0.11.23` |
 | Python | `3.14`, installed by uv |
 | Conan | `2.29.1`, installed by uv |
+| vcpkg | `2026.06.24` |
 | Bazel | Bazelisk `1.29.0`, project Bazel `.bazelversion` `9.1.1` |
 | buf | `1.71.0` |
 | Buildifier | `8.5.1`, development and Bazel runner images |
 
 Downloaded CMake, uv, Bazelisk, buf, and Buildifier release assets are verified
-with pinned SHA-256 checksums during image builds.
+with pinned SHA-256 checksums during image builds. vcpkg is installed from the
+official GitHub release tag and bootstrapped with metrics disabled.
 
 ## Build Locally
 
