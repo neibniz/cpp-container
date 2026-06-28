@@ -13,6 +13,8 @@ Clang. The images support `linux/amd64` and `linux/arm64`.
 | `clang-dev` | Clang development image with SSH, aliases, sudo, Buildifier, clangd, LLDB, and perf |
 | `gcc-runtime` | Minimal runtime image for GCC/libstdc++ binaries, including libatomic and OpenMP runtime libraries |
 | `clang-runtime` | Minimal runtime image for Clang binaries using libstdc++, including libatomic and OpenMP runtime libraries |
+| `bazel-build` | Minimal Bazel runner image for hermetic toolchain validation; includes Bazelisk, buf, and Buildifier, but no GCC or Clang compiler |
+| `bazel-dev` | Bazel development image with SSH, aliases, sudo, clangd, buf, and Buildifier, but no GCC or Clang compiler |
 
 ## Versions
 
@@ -26,9 +28,9 @@ Clang. The images support `linux/amd64` and `linux/arm64`.
 | uv | `0.11.23` |
 | Python | `3.14`, installed by uv |
 | Conan | `2.29.1`, installed by uv |
-| Bazel | Bazelisk `1.29.0`, fallback Bazel `9.1.1` |
+| Bazel | Bazelisk `1.29.0`, project Bazel `.bazelversion` `9.1.1` |
 | buf | `1.71.0` |
-| Buildifier | `8.5.1`, development images only |
+| Buildifier | `8.5.1`, development and Bazel runner images |
 
 Downloaded CMake, uv, Bazelisk, buf, and Buildifier release assets are verified
 with pinned SHA-256 checksums during image builds.
@@ -111,6 +113,33 @@ bash for the image aliases:
 }
 ```
 
+## Bazel Hermetic Runner Images
+
+The `bazel-build` image is intentionally separate from `gcc-build` and
+`clang-build`. It does not install `gcc`, `g++`, `clang`, or `clang++`, so Bazel
+CI can detect accidental dependence on system compilers. It is intended for
+Bazel-level hermetic C++ toolchains where compiler archives, sysroots, and
+runtime libraries are declared by Bazel with fixed versions and checksums.
+
+The `bazel-dev` image extends `bazel-build` with SSH, the `dev` user, aliases,
+sudo, editor utilities, and `clangd` for language-server support. `clangd` is
+for editor integration only; Bazel builds should still use explicit hermetic
+toolchain configs.
+
+Build and smoke-test the Bazel runner locally:
+
+```bash
+docker buildx bake bazel-build-local
+docker run --rm -v "$PWD":/workspace -w /workspace bazel-build:local \
+  bash -lc 'bazel --version && buf --version && buildifier --version && ! command -v gcc && ! command -v clang'
+```
+
+The repository includes `.bazelversion` to pin the Bazel version used by
+Bazelisk. `.bazeliskrc` fails when no `.bazelversion` is present, and `.bazelrc`
+requires the Bzlmod lockfile during builds. Full hermetic C++ compilation still
+requires a Bazel `cc_toolchain` that declares the compiler, sysroot, linker, and
+runtime libraries as Bazel inputs.
+
 ## GTest Examples
 
 Run the CMake + Conan 2 example:
@@ -180,6 +209,8 @@ ghcr.io/example/gcc-dev:a1b2c3d4e5f6
 ghcr.io/example/clang-dev:a1b2c3d4e5f6
 ghcr.io/example/gcc-runtime:a1b2c3d4e5f6
 ghcr.io/example/clang-runtime:a1b2c3d4e5f6
+ghcr.io/example/bazel-build:a1b2c3d4e5f6
+ghcr.io/example/bazel-dev:a1b2c3d4e5f6
 ```
 
 For tag `v1.0.0`, the same image names receive tag `v1.0.0`.

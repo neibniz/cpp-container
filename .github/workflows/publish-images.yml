@@ -29,6 +29,8 @@ jobs:
           - clang-dev
           - gcc-runtime
           - clang-runtime
+          - bazel-build
+          - bazel-dev
 
     steps:
       - uses: actions/checkout@v7

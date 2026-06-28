@@ -27,6 +27,8 @@ ARG BUILDIFIER_AMD64_SHA256=887377fc64d23a850f4d18a077b5db05b19913f4b99b270d193f
 ARG BUILDIFIER_ARM64_SHA256=947bf6700d708026b2057b09bea09abbc3cafc15d9ecea35bb3885c4b09ccd04
 
 ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
     UV_PYTHON_INSTALL_DIR=/opt/uv/python \
     UV_TOOL_DIR=/opt/uv/tools \
     UV_TOOL_BIN_DIR=/usr/local/bin \
@@ -49,6 +51,42 @@ RUN bash /tmp/cpp-container-scripts/install-base-packages.sh \
  && bash /tmp/cpp-container-scripts/install-bazelisk.sh \
  && bash /tmp/cpp-container-scripts/install-buf.sh \
  && rm -rf /tmp/cpp-container-scripts
+
+FROM debian:${DEBIAN_VERSION} AS bazel-build
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+ARG TARGETARCH
+ARG BAZELISK_VERSION=1.29.0
+ARG BAZEL_VERSION=9.1.1
+ARG BUF_VERSION=1.71.0
+ARG BUILDIFIER_VERSION=8.5.1
+ARG PREFETCH_BAZEL=1
+ARG BAZELISK_AMD64_SHA256=5a408715e932c0250d28bd84555f12edbf70117de42f9181691c736eacc4a992
+ARG BAZELISK_ARM64_SHA256=e20e8b0f4f240091b7a55bf17b9398bd4f40ee70ae0208dff95dd4c445fb4010
+ARG BUF_AMD64_SHA256=d3de2838c68a5759ca276884254bc70df4e4ad185d6ed5f65f327b6ce6363eab
+ARG BUF_ARM64_SHA256=041c15f3a8c4bd6cf36285d7a9ef290cd3e2536ef3bfd3de64d1f70cc5144c6e
+ARG BUILDIFIER_AMD64_SHA256=887377fc64d23a850f4d18a077b5db05b19913f4b99b270d193f3c7334b5a9a7
+ARG BUILDIFIER_ARM64_SHA256=947bf6700d708026b2057b09bea09abbc3cafc15d9ecea35bb3885c4b09ccd04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    BAZELISK_HOME=/opt/bazelisk \
+    USE_BAZEL_FALLBACK_VERSION=error:missing-.bazelversion \
+    PATH=/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+COPY docker/scripts/common.sh \
+     docker/scripts/install-bazel-runner-packages.sh \
+     docker/scripts/install-bazelisk.sh \
+     docker/scripts/install-buf.sh \
+     docker/scripts/install-buildifier.sh \
+     /tmp/cpp-container-scripts/
+RUN bash /tmp/cpp-container-scripts/install-bazel-runner-packages.sh \
+ && USE_BAZEL_VERSION="${BAZEL_VERSION}" bash /tmp/cpp-container-scripts/install-bazelisk.sh \
+ && bash /tmp/cpp-container-scripts/install-buf.sh \
+ && bash /tmp/cpp-container-scripts/install-buildifier.sh \
+ && rm -rf /tmp/cpp-container-scripts
+WORKDIR /workspace
 
 FROM common AS gcc-build
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -133,9 +171,36 @@ EXPOSE 22
 WORKDIR /workspace
 ENTRYPOINT ["/usr/local/bin/entrypoint-dev"]
 
+FROM bazel-build AS bazel-dev
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ARG DEV_USER=dev
+ARG DEV_UID=1000
+ARG DEV_GID=1000
+ARG DEV_SUDO=1
+ARG LLVM_MAJOR=19
+ENV DEV_TOOLCHAIN=bazel \
+    SHELL=/bin/bash
+COPY docker/scripts/common.sh \
+     docker/scripts/install-clangd.sh \
+     docker/scripts/setup-dev-user.sh \
+     docker/scripts/setup-sshd.sh \
+     /tmp/cpp-container-scripts/
+COPY docker/entrypoint-dev.sh /usr/local/bin/entrypoint-dev
+COPY docker/profile/bazel_dev_aliases.sh /etc/profile.d/dev-aliases.sh
+RUN bash /tmp/cpp-container-scripts/install-clangd.sh \
+ && bash /tmp/cpp-container-scripts/setup-dev-user.sh \
+ && bash /tmp/cpp-container-scripts/setup-sshd.sh \
+ && chmod 0755 /usr/local/bin/entrypoint-dev /etc/profile.d/dev-aliases.sh \
+ && rm -rf /tmp/cpp-container-scripts
+EXPOSE 22
+WORKDIR /workspace
+ENTRYPOINT ["/usr/local/bin/entrypoint-dev"]
+
 FROM debian:${DEBIAN_VERSION} AS gcc-runtime
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates libatomic1 libgcc-s1 libgomp1 libstdc++6 \
  && rm -rf /var/lib/apt/lists/*
@@ -144,7 +209,9 @@ CMD ["/bin/sh"]
 
 FROM debian:${DEBIAN_VERSION} AS clang-runtime
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates libatomic1 libgcc-s1 libgomp1 libstdc++6 \
  && rm -rf /var/lib/apt/lists/*

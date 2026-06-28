@@ -22,6 +22,8 @@ group "default" {
     "clang-dev",
     "gcc-runtime",
     "clang-runtime",
+    "bazel-build",
+    "bazel-dev",
   ]
 }
 
@@ -33,6 +35,8 @@ group "local" {
     "clang-dev-local",
     "gcc-runtime-local",
     "clang-runtime-local",
+    "bazel-build-local",
+    "bazel-dev-local",
   ]
 }
 
@@ -105,4 +109,24 @@ target "clang-runtime" {
 
 target "clang-runtime-local" {
   inherits = ["clang-runtime", "_local"]
+}
+
+target "bazel-build" {
+  inherits = ["_common"]
+  target = "bazel-build"
+  tags = ["${IMAGE_PREFIX}bazel-build:${VERSION}"]
+}
+
+target "bazel-build-local" {
+  inherits = ["bazel-build", "_local"]
+}
+
+target "bazel-dev" {
+  inherits = ["_common"]
+  target = "bazel-dev"
+  tags = ["${IMAGE_PREFIX}bazel-dev:${VERSION}"]
+}
+
+target "bazel-dev-local" {
+  inherits = ["bazel-dev", "_local"]
 }
