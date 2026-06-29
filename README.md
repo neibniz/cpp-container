@@ -22,8 +22,8 @@ Clang. The images support `linux/amd64` and `linux/arm64`.
 | --- | --- |
 | Base image | `debian:trixie-slim` |
 | GCC/G++ | Debian `gcc-14` / `g++-14` |
-| Clang/LLDB | Debian `clang-19` / `lldb-19` |
-| clangd | Debian `clangd-19`, development images only |
+| Clang/LLDB | apt.llvm.org `clang-22` / `lldb-22` |
+| clangd | apt.llvm.org `clangd-22`, development images only |
 | CMake | `4.3.4` |
 | uv | `0.11.23` |
 | Python | `3.14`, installed by uv |

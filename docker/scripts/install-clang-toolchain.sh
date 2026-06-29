@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
 : "${GCC_MAJOR:=14}"
-: "${LLVM_MAJOR:=19}"
+: "${LLVM_MAJOR:=22}"
 
 apt_install \
   "clang-${LLVM_MAJOR}" \

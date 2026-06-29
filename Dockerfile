@@ -110,12 +110,14 @@ WORKDIR /workspace
 FROM common AS clang-build
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG GCC_MAJOR=14
-ARG LLVM_MAJOR=19
+ARG LLVM_MAJOR=22
 COPY docker/scripts/common.sh \
+     docker/scripts/setup-llvm-apt.sh \
      docker/scripts/install-clang-toolchain.sh \
      docker/scripts/install-debug-tools.sh \
      /tmp/cpp-container-scripts/
-RUN bash /tmp/cpp-container-scripts/install-clang-toolchain.sh \
+RUN bash /tmp/cpp-container-scripts/setup-llvm-apt.sh \
+ && bash /tmp/cpp-container-scripts/install-clang-toolchain.sh \
  && DEBUG_TOOLCHAIN=clang bash /tmp/cpp-container-scripts/install-debug-tools.sh \
  && rm -rf /tmp/cpp-container-scripts
 ENV CC=clang CXX=clang++
@@ -127,10 +129,11 @@ ARG DEV_USER=dev
 ARG DEV_UID=1000
 ARG DEV_GID=1000
 ARG DEV_SUDO=1
-ARG LLVM_MAJOR=19
+ARG LLVM_MAJOR=22
 ENV DEV_TOOLCHAIN=gcc \
     SHELL=/bin/bash
 COPY docker/scripts/common.sh \
+     docker/scripts/setup-llvm-apt.sh \
      docker/scripts/install-clangd.sh \
      docker/scripts/install-buildifier.sh \
      docker/scripts/setup-dev-user.sh \
@@ -140,6 +143,7 @@ COPY docker/entrypoint-dev.sh /usr/local/bin/entrypoint-dev
 COPY docker/profile/dev-aliases.sh /etc/profile.d/dev-aliases.sh
 COPY docker/profile/gcc-env.sh /etc/profile.d/toolchain-env.sh
 RUN bash /tmp/cpp-container-scripts/install-buildifier.sh \
+ && bash /tmp/cpp-container-scripts/setup-llvm-apt.sh \
  && bash /tmp/cpp-container-scripts/install-clangd.sh \
  && bash /tmp/cpp-container-scripts/setup-dev-user.sh \
  && bash /tmp/cpp-container-scripts/setup-sshd.sh \
@@ -155,7 +159,7 @@ ARG DEV_USER=dev
 ARG DEV_UID=1000
 ARG DEV_GID=1000
 ARG DEV_SUDO=1
-ARG LLVM_MAJOR=19
+ARG LLVM_MAJOR=22
 ENV DEV_TOOLCHAIN=clang \
     SHELL=/bin/bash
 COPY docker/scripts/common.sh \
@@ -183,17 +187,19 @@ ARG DEV_USER=dev
 ARG DEV_UID=1000
 ARG DEV_GID=1000
 ARG DEV_SUDO=1
-ARG LLVM_MAJOR=19
+ARG LLVM_MAJOR=22
 ENV DEV_TOOLCHAIN=bazel \
     SHELL=/bin/bash
 COPY docker/scripts/common.sh \
+     docker/scripts/setup-llvm-apt.sh \
      docker/scripts/install-clangd.sh \
      docker/scripts/setup-dev-user.sh \
      docker/scripts/setup-sshd.sh \
      /tmp/cpp-container-scripts/
 COPY docker/entrypoint-dev.sh /usr/local/bin/entrypoint-dev
 COPY docker/profile/bazel_dev_aliases.sh /etc/profile.d/dev-aliases.sh
-RUN bash /tmp/cpp-container-scripts/install-clangd.sh \
+RUN bash /tmp/cpp-container-scripts/setup-llvm-apt.sh \
+ && bash /tmp/cpp-container-scripts/install-clangd.sh \
  && bash /tmp/cpp-container-scripts/setup-dev-user.sh \
  && bash /tmp/cpp-container-scripts/setup-sshd.sh \
  && chmod 0755 /usr/local/bin/entrypoint-dev /etc/profile.d/dev-aliases.sh \

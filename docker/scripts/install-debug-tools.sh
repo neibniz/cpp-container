@@ -15,7 +15,7 @@ case "${DEBUG_TOOLCHAIN}" in
     packages+=(gdb)
     ;;
   clang)
-    : "${LLVM_MAJOR:=19}"
+    : "${LLVM_MAJOR:=22}"
     packages+=("lldb-${LLVM_MAJOR}")
     ;;
   *)
